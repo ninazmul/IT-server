@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+            color: #333;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #dddddd;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #333333;
+        }
+
+        .header p {
+            margin: 5px 0;
+            color: #777777;
+        }
+
+        .content {
+            padding: 20px;
+        }
+
+        .content h4 {
+            margin-top: 0;
+            color: #333333;
+        }
+
+        .order-details {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .order-details th, .order-details td {
+            padding: 10px;
+            border: 1px solid #dddddd;
+            text-align: left;
+        }
+
+        .order-details th {
+            background-color: #f8f8f8;
+        }
+
+        .order-summary {
+            margin-top: 20px;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .order-summary th, .order-summary td {
+            padding: 10px;
+            text-align: right;
+        }
+
+        .order-summary th {
+            text-align: left;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 20px;
+            border-top: 1px solid #dddddd;
+            font-size: 12px;
+            color: #777777;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Your IT Training BD Order is Confirmed</h1>
+            <p>And we're just as excited as you are.</p>
+        </div>
+        <div class="content">
+            <h4>Here's what you ordered:</h4>
+            <table class="order-details">
+                <tr>
+                    <th>Order #</th>
+                    <th>Order Date</th>
+                </tr>
+                <tr>
+                    <td><%= order._id %></td>
+                    <td><%= order.date %></td>
+                </tr>
+            </table>
+            <table class="order-details" style="margin-top: 20px;">
+                <tr>
+                    <th>Item</th>
+                    <th>Qty</th>
+                    <th>Cost</th>
+                </tr>
+                <tr>
+                    <td><%= order.name %></td>
+                    <td>1</td>
+                    <td>$<%= order.price %></td>
+                </tr>
+            </table>
+            <table class="order-summary" style="margin-top: 20px;">
+                <tr>
+                    <th>Subtotal:</th>
+                    <td>$<%= order.price %></td>
+                </tr>
+                <tr>
+                    <th>Total:</th>
+                    <td>$<%= order.price %></td>
+                </tr>
+            </table>
+            <p style="margin-top: 20px;">You now have access to the course: <strong><%= order.name %></strong>.</p>
+        </div>
+        <div class="footer">
+            <p>&copy; 2024 IT Training BD. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+
+</html>

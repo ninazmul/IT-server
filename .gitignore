@@ -1,0 +1,18 @@
+# Node.js dependencies
+/node_modules/
+
+# TypeScript build output
+/dist/
+/build/
+
+# Environment variables
+.env
+.env.local
+
+# IDE or editor specific files
+.vscode/
+.idea/
+
+# npm/yarn lock files
+package-lock.json
+yarn.lock
