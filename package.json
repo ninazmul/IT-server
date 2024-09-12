@@ -3,15 +3,14 @@
   "version": "1.0.0",
   "description": "LMS website",
   "type": "commonjs",
-  "main": "build/server.js",
+  "main": "server.js",
   "engines": {
     "node": "20.9.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "ts-node-dev --respawn --transpile-only server.ts",
-    "start": "node build/server.js",
-    "heroku-postbuild": "NPM_CONFIG_PRODUCTION=false",
+    "start": "node server.js",
     "build": "tsc"
   },
   "author": "N.I. Nazmul",
