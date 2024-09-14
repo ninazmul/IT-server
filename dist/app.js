@@ -24,7 +24,7 @@ exports.app.use((0, cookie_parser_1.default)());
 // cors => cors origin resource sharing
 exports.app.use((0, cors_1.default)({
     // origin: process.env.ORIGIN,
-    origin: ["https://it-client.vercel.app"],
+    origin: ["https://it-client.vercel.app", "http://localhost:3000"],
     credentials: true,
 }));
 // api requeset limit
