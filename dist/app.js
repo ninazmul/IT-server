@@ -24,7 +24,7 @@ exports.app.use((0, cookie_parser_1.default)());
 // cors => cors origin resource sharing
 exports.app.use((0, cors_1.default)({
     // origin: process.env.ORIGIN,
-    origin: ["https://it-server.up.railway.app"],
+    origin: ["https://it-client.vercel.app"],
     credentials: true,
 }));
 // api requeset limit
