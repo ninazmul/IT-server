@@ -8,36 +8,40 @@ import { updateAccessToken } from "../controllers/user.controller";
 // authenticated user
 export const isAuthenticated = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const access_token = req.cookies.access_token;
+    const access_token = req.cookies.access_token as string;
 
+    // console.log(access_token)
     if (!access_token) {
       return next(
-        new ErrorHandler("Please login to access this resource", 401)
+        new ErrorHandler("Please login to access this resource", 400)
       );
     }
 
-    try {
-      const decoded = jwt.verify(
-        access_token,
-        process.env.ACCESS_TOKEN_SECRET as string
-      ) as JwtPayload;
+    const decoded = jwt.decode(access_token) as JwtPayload;
+
+    if (!decoded) {
+      return next(new ErrorHandler("Access token is not valid", 400));
+    }
+
+    // check if the access token is expired
+    if (decoded.exp && decoded.exp <= Date.now() / 1000) {
+      try {
+        await updateAccessToken(req, res, next);
+      } catch (error: any) {
+        new ErrorHandler("Please login to acces this resource", 400);
+      }
+    } else {
       const user = await redis.get(decoded.id);
 
       if (!user) {
         return next(
-          new ErrorHandler("User session expired. Please login again.", 401)
+          new ErrorHandler("Please login to access this resource", 400)
         );
       }
 
       req.user = JSON.parse(user);
+
       next();
-    } catch (error: any) {
-      // If the access token is expired, refresh it
-      if (error.name === "TokenExpiredError") {
-        return updateAccessToken(req, res, next);
-      } else {
-        return next(new ErrorHandler("Invalid access token", 401));
-      }
     }
   }
 );
