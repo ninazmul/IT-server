@@ -24,7 +24,7 @@ app.use(cookieParser());
 app.use(
   cors({
     // origin: process.env.ORIGIN,
-    origin: ["https://it-client.vercel.app"],
+    origin: ["https://it-client.vercel.app", "http://localhost:3000"],
     credentials: true,
   })
 );
