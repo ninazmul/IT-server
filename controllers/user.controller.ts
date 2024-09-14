@@ -137,107 +137,100 @@ interface ILoginRequest {
 
 export const loginUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { email, password } = req.body as ILoginRequest;
+    const { email, password } = req.body;
 
-      if (!email || !password) {
-        return next(new ErrorHandler("Please enter email and password!", 400));
-      }
-
-      const user = await userModel.findOne({ email }).select("+password");
-
-      if (!user) {
-        return next(new ErrorHandler("Invalid email or password!", 400));
-      }
-
-      const isPasswordMatch = await user.comparePassword(password);
-
-      if (!isPasswordMatch) {
-        return next(new ErrorHandler("Invalid password!", 400));
-      }
-
-      sendToken(user, 200, res);
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+    if (!email || !password) {
+      return next(new ErrorHandler("Please enter email and password", 400));
     }
+
+    const user = await userModel.findOne({ email }).select("+password");
+    if (!user) {
+      return next(new ErrorHandler("Invalid email or password", 400));
+    }
+
+    const isPasswordMatch = await user.comparePassword(password);
+    if (!isPasswordMatch) {
+      return next(new ErrorHandler("Invalid password", 400));
+    }
+
+    // Generate and send tokens
+    sendToken(user, 200, res);
   }
 );
+
 
 // logout user
 export const logoutUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      res.cookie("access_token", "", { maxAge: 1 });
-      res.cookie("refresh_token", "", { maxAge: 1 });
+    res.cookie("access_token", "", { maxAge: 1 });
+    res.cookie("refresh_token", "", { maxAge: 1 });
 
-      const userId = req.user?._id?.toString() || "";
-      if (userId) {
-        await redis.del(userId);
-      }
-
-      res.status(200).json({
-        success: true,
-        message: "Logged out successfully!",
-      });
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+    const userId = req.user?._id?.toString() || "";
+    if (userId) {
+      await redis.del(userId);
     }
+
+    res.status(200).json({
+      success: true,
+      message: "Logged out successfully!",
+    });
   }
 );
+
 
 // update access token
 export const updateAccessToken = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
+    const refresh_token = req.cookies.refresh_token as string;
+
+    if (!refresh_token) {
+      return next(new ErrorHandler("No refresh token found", 401));
+    }
+
     try {
-      const refresh_token = req.cookies.refresh_token as string;
       const decoded = jwt.verify(
         refresh_token,
-        process.env.REFRESH_TOKEN as string
+        process.env.REFRESH_TOKEN_SECRET as string
       ) as JwtPayload;
 
-      const message = "Could not refresh token";
-      if (!decoded) {
-        return next(new ErrorHandler(message, 400));
-      }
-
-      const session = await redis.get(decoded.id as string);
-
+      const session = await redis.get(decoded.id);
       if (!session) {
-        return next(
-          new ErrorHandler("Please login for access this resources", 400)
-        );
+        return next(new ErrorHandler("Session expired or invalid", 401));
       }
 
       const user = JSON.parse(session);
 
-      const accessToken = jwt.sign(
-        { id: user._id },
-        process.env.ACCESS_TOKEN as string,
-        {
-          expiresIn: "5m",
-        }
-      );
-      const refreshToken = jwt.sign(
-        { id: user._id },
-        process.env.REFRESH_TOKEN as string,
-        {
-          expiresIn: "3d",
-        }
-      );
+      // Create new tokens
+      const accessToken = user.SignAccessToken();
+      const refreshToken = user.SignRefreshToken();
 
-      req.user = user;
-
+      // Update cookies with new tokens
       res.cookie("access_token", accessToken, accessTokenOptions);
       res.cookie("refresh_token", refreshToken, refreshTokenOptions);
 
-      await redis.set(user._id, JSON.stringify(user), "EX", 604800); //7 days
+      // Set Redis session expiration based on refresh token expiration
+      const refreshTokenExpiry = parseInt(
+        process.env.REFRESH_TOKEN_EXPIRE || "86400", // default to 1 day in seconds
+        10
+      );
 
+      // Refresh session in Redis with proper expiration time
+      await redis.set(
+        user._id.toString(),
+        JSON.stringify(user),
+        "EX",
+        refreshTokenExpiry
+      );
+
+      req.user = user;
       next();
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+    } catch (error) {
+      return next(new ErrorHandler("Invalid or expired refresh token", 401));
     }
   }
 );
+
+
 
 // get user info
 export const getUserInfo = CatchAsyncError(
