@@ -1,12 +1,12 @@
-import { Redis } from "ioredis";
+import Redis from "ioredis";
 require("dotenv").config();
 
+// Redis connection logic with a fallback
 const redisClient = () => {
-    if (process.env.REDIS_URL) {
-        console.log(`Redis connected`);
-        return process.env.REDIS_URL;
-    }
-    throw new Error("Redis connection failed!")
+  const redisUrl = process.env.REDIS_URL || "redis://localhost:6379";
+  console.log(`Redis connected to ${redisUrl}`);
+  return new Redis(redisUrl);
 };
 
-export const redis = new Redis(redisClient());
+// Export Redis client instance
+export const redis = redisClient();

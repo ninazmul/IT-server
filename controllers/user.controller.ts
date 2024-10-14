@@ -469,24 +469,32 @@ export const updateUserRole = CatchAsyncError(
 export const deleteUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { id } = req.params;
-
-      const user = await userModel.findById(id);
-
+      const userId = req.params.id; // Assume user ID is passed as a route parameter
+      
+      // Find user by ID
+      const user = await userModel.findById(userId);
       if (!user) {
-        return next(new ErrorHandler("User not found!", 404));
+        return next(new ErrorHandler("User not found", 404));
       }
 
-      await user.deleteOne({ id });
+      // Optional: If you have an avatar, delete it from Cloudinary
+      if (user.avatar?.public_id) {
+        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
+      }
 
-      await redis.del(id);
+      // Delete user from database
+      await userModel.findByIdAndDelete(userId);
+
+      // Remove user data from Redis cache
+      await redis.del(userId);
 
       res.status(200).json({
         success: true,
-        message: "User deleted successfully!",
+        message: "User deleted successfully",
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
   }
 );
+
