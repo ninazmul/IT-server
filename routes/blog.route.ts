@@ -10,15 +10,15 @@ import { authorizeRoles, isAuthenticated } from "../middleware/auth";
 const blogRouter = express.Router();
 
 blogRouter.post(
-  "/upload",
+  "/upload-blog",
   isAuthenticated,
   authorizeRoles("admin"),
   uploadBlog
 );
-blogRouter.get("/all", getAllBlogsController);
-blogRouter.get("/:id", getSingleBlogController);
+blogRouter.get("/all-blog", getAllBlogsController);
+blogRouter.get("/blog/:id", getSingleBlogController);
 blogRouter.delete(
-  "/:id",
+  "/blog/:id",
   isAuthenticated,
   authorizeRoles("admin"),
   deleteBlogController
