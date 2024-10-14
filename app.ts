@@ -7,6 +7,7 @@ import orderRouter from "./routes/order.route";
 import notificationRouter from "./routes/notification.route";
 import analyticsRouter from "./routes/analytics.route";
 import layoutRouter from "./routes/layout.route";
+import blogRouter from "./routes/blog.route";
 import { ErrorMiddleware } from "./middleware/error";
 import rateLimit from "express-rate-limit";
 
@@ -45,7 +46,8 @@ app.use(
   orderRouter,
   notificationRouter,
   analyticsRouter,
-  layoutRouter
+  layoutRouter,
+  blogRouter
 );
 
 // testing api
