@@ -2,7 +2,7 @@ import { Response } from "express";
 import { IUser } from "../models/user.model";
 import { redis } from "./redis"; // Import from redis.ts
 
-// Token options (same as before)
+// Token options
 interface ITokenOptions {
   expires: Date;
   maxAge: number;
