@@ -76,7 +76,6 @@ export const registrationUser = CatchAsyncError(
   }
 );
 
-
 interface IActivationToken {
   token: string;
   activationCode: string;
@@ -469,32 +468,24 @@ export const updateUserRole = CatchAsyncError(
 export const deleteUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = req.params.id; // Assume user ID is passed as a route parameter
-      
-      // Find user by ID
-      const user = await userModel.findById(userId);
+      const { id } = req.params;
+
+      const user = await userModel.findById(id);
+
       if (!user) {
-        return next(new ErrorHandler("User not found", 404));
+        return next(new ErrorHandler("User not found!", 404));
       }
 
-      // Optional: If you have an avatar, delete it from Cloudinary
-      if (user.avatar?.public_id) {
-        await cloudinary.v2.uploader.destroy(user.avatar.public_id);
-      }
+      await user.deleteOne({ id });
 
-      // Delete user from database
-      await userModel.findByIdAndDelete(userId);
-
-      // Remove user data from Redis cache
-      await redis.del(userId);
+      await redis.del(id);
 
       res.status(200).json({
         success: true,
-        message: "User deleted successfully",
+        message: "User deleted successfully!",
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
   }
 );
-
