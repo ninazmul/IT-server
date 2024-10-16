@@ -15,7 +15,7 @@ blogRouter.post(
   authorizeRoles("admin"),
   uploadBlog
 );
-blogRouter.get("/all-blog", getAllBlogsController);
+blogRouter.get("/all-blogs", getAllBlogsController);
 blogRouter.get("/blog/:id", getSingleBlogController);
 blogRouter.delete(
   "/blog/:id",
