@@ -18,21 +18,19 @@ export const uploadBlog = CatchAsyncError(
       return next(new ErrorHandler("Please upload an image", 400));
     }
 
-    // Upload image to Cloudinary
-    const uploadResult = await cloudinary.uploader.upload(image, {
-      folder: "blogs", // optional folder in Cloudinary
-      use_filename: true,
-    });
-
-    const imagePath = uploadResult.secure_url; // Get the secure URL of the uploaded image
-
-    const blogData = {
-      title,
-      description,
-      headerImage: imagePath,
-    };
-
     try {
+      // Upload image to Cloudinary
+      const uploadResult = await cloudinary.uploader.upload(image, {
+        folder: "blogs", // optional folder in Cloudinary
+        use_filename: true,
+      });
+
+      const blogData = {
+        title,
+        description,
+        headerImage: uploadResult.secure_url, // Get the secure URL of the uploaded image
+      };
+
       const blog = await createBlog(blogData);
       res.status(201).json({
         success: true,
@@ -62,8 +60,13 @@ export const getAllBlogsController = CatchAsyncError(
 // Controller to fetch a single blog
 export const getSingleBlogController = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params; // Extracting id from params
+
     try {
-      const blog = await getSingleBlog(req.params.id);
+      const blog = await getSingleBlog(id); // Fetching blog by ID
+      if (!blog) {
+        return next(new ErrorHandler("Blog not found", 404)); // Handle blog not found
+      }
       res.status(200).json({
         success: true,
         blog,
@@ -77,11 +80,16 @@ export const getSingleBlogController = CatchAsyncError(
 // Controller to delete a blog
 export const deleteBlogController = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
+    const { id } = req.params; // Extracting id from params
+
     try {
-      const result = await deleteBlog(req.params.id);
+      const result = await deleteBlog(id); // Deleting blog by ID
+      if (!result) {
+        return next(new ErrorHandler("Blog not found", 404)); // Handle blog not found
+      }
       res.status(200).json({
         success: true,
-        message: result.message,
+        message: "Blog deleted successfully",
       });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
