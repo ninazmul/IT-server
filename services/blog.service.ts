@@ -14,24 +14,21 @@ export const createBlog = async (data: BlogData) => {
   try {
     let headerImage = data.headerImage;
 
-    // Upload the image to Cloudinary if it's a string (base64 or URL)
     if (typeof headerImage === "string") {
       const myCloud = await cloudinary.v2.uploader.upload(headerImage, {
         folder: "blogs",
       });
 
-      // Replace headerImage with the Cloudinary response object
       headerImage = {
         public_id: myCloud.public_id,
         url: myCloud.secure_url,
       };
     }
 
-    // Save blog to the database
     const blog = await BlogModel.create({
       title: data.title,
       description: data.description,
-      headerImage, // Now it can accept both string and object
+      headerImage,
     });
 
     return blog;

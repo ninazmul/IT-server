@@ -7,14 +7,33 @@ import {
   deleteBlog,
 } from "../services/blog.service";
 import ErrorHandler from "../utils/ErrorHandler";
+import { v2 as cloudinary } from "cloudinary";
 
-// Controller to create a new blog
+// Create blog controller
 export const uploadBlog = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const data = req.body;
+    const { title, description, image } = req.body;
+
+    if (!image) {
+      return next(new ErrorHandler("Please upload an image", 400));
+    }
+
+    // Upload image to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(image, {
+      folder: "blogs", // optional folder in Cloudinary
+      use_filename: true,
+    });
+
+    const imagePath = uploadResult.secure_url; // Get the secure URL of the uploaded image
+
+    const blogData = {
+      title,
+      description,
+      headerImage: imagePath,
+    };
 
     try {
-      const blog = await createBlog(data);
+      const blog = await createBlog(blogData);
       res.status(201).json({
         success: true,
         blog,
