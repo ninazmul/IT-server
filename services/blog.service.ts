@@ -1,12 +1,12 @@
 import BlogModel from "../models/blog.model";
-import cloudinary from "cloudinary";
+import { v2 as cloudinary } from "cloudinary";
 import ErrorHandler from "../utils/ErrorHandler";
 
 // Interface to define blog data structure
 interface BlogData {
   title: string;
   description: string;
-  headerImage: string | { public_id: string; url: string }; // Adjusted to allow both string and object
+  headerImage: string | { public_id: string; url: string }; // Allow both string and object
 }
 
 // Create a new blog
@@ -14,8 +14,9 @@ export const createBlog = async (data: BlogData) => {
   try {
     let headerImage = data.headerImage;
 
+    // If headerImage is a string, upload it to Cloudinary
     if (typeof headerImage === "string") {
-      const myCloud = await cloudinary.v2.uploader.upload(headerImage, {
+      const myCloud = await cloudinary.uploader.upload(headerImage, {
         folder: "blogs",
       });
 
@@ -25,6 +26,7 @@ export const createBlog = async (data: BlogData) => {
       };
     }
 
+    // Create the blog in the database
     const blog = await BlogModel.create({
       title: data.title,
       description: data.description,
@@ -72,9 +74,9 @@ export const deleteBlog = async (id: string) => {
       throw new ErrorHandler("Blog not found", 404);
     }
 
-    // Remove the image from Cloudinary if it exists
+    // If the blog has a Cloudinary image, delete it
     if (blog.headerImage && typeof blog.headerImage !== "string") {
-      await cloudinary.v2.uploader.destroy(blog.headerImage.public_id);
+      await cloudinary.uploader.destroy(blog.headerImage.public_id);
     }
 
     // Delete the blog from the database
