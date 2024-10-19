@@ -1,6 +1,11 @@
 import express from "express";
 import { authorizeRoles, isAuthenticated } from "../middleware/auth";
-import { createBlog, deleteBlog, getAllBlogs, getSingleBlog } from "../controllers/blog.controller";
+import {
+  createBlog,
+  deleteBlog,
+  getAllBlogs,
+  getSingleBlog,
+} from "../controllers/blog.controller";
 
 const blogRouter = express.Router();
 

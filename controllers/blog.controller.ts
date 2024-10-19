@@ -42,7 +42,7 @@ export const createBlog = CatchAsyncError(
 
 // Get all blogs
 export const getAllBlogs = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response) => {
     const blogs = await BlogModel.find();
 
     res.status(200).json({

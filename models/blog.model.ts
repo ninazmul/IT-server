@@ -10,7 +10,7 @@ interface Blog extends Document {
   blog: {
     image: BlogImage;
     title: string;
-    description: string; // Ensure this matches your request and update
+    description: string;
   };
 }
 
@@ -24,7 +24,7 @@ const blogSchema = new Schema<Blog>({
   blog: {
     image: blogImageSchema,
     title: { type: String, required: true },
-    description: { type: String, required: true }, // Ensure this matches your request and update
+    description: { type: String, required: true },
   },
 });
 
