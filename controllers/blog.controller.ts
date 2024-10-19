@@ -7,28 +7,44 @@ import BlogModel from "../models/blog.model";
 // Create blog
 export const createBlog = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
+    console.log("Request body:", req.body); // Log the request body
+
     const { image, title, description } = req.body;
 
-  const myCloud = await cloudinary.v2.uploader.upload(image, {
-    folder: "blog",
-  });
-  const blog = {
-    type: "Blog",
-    blog: {
-      image: {
-        public_id: myCloud.public_id,
-        url: myCloud.secure_url,
-      },
-      title,
-      description,
-    },
-  };
-  await BlogModel.create(blog);
+    // Validate inputs
+    if (!image || !title || !description) {
+      return next(new ErrorHandler("Please provide all required fields", 400));
+    }
 
-    res.status(201).json({
-      success: true,
-      message: "Blog created successfully",
-    });
+    try {
+      const myCloud = await cloudinary.v2.uploader.upload(image, {
+        folder: "blog",
+      });
+
+      const blog = {
+        type: "Blog",
+        blog: {
+          image: {
+            public_id: myCloud.public_id,
+            url: myCloud.secure_url,
+          },
+          title,
+          description,
+        },
+      };
+
+      const savedBlog = await BlogModel.create(blog); // Save blog
+      console.log("Blog saved:", savedBlog); // Log saved blog
+
+      res.status(201).json({
+        success: true,
+        message: "Blog created successfully",
+        data: savedBlog, // Return saved blog data
+      });
+    } catch (error) {
+      console.error("Error creating blog:", error); // Log the error
+      return next(new ErrorHandler("Failed to create blog", 500));
+    }
   }
 );
 
