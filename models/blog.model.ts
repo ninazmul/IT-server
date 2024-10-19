@@ -6,7 +6,6 @@ interface BlogImage extends Document {
 }
 
 interface Blog extends Document {
-  type: string;
   blog: {
     image: BlogImage;
     title: string;
@@ -20,7 +19,6 @@ const blogImageSchema = new Schema<BlogImage>({
 });
 
 const blogSchema = new Schema<Blog>({
-  type: { type: String, required: true },
   blog: {
     image: blogImageSchema,
     title: { type: String, required: true },

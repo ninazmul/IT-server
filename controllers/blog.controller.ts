@@ -7,31 +7,23 @@ import BlogModel from "../models/blog.model";
 // Create blog
 export const createBlog = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { type, image, title, description } = req.body;
+    const { image, title, description } = req.body;
 
-    // Check if type already exists
-    const isTypeExist = await BlogModel.findOne({ type });
-    if (isTypeExist) {
-      return next(new ErrorHandler(`${type} already exists`, 400));
-    }
-
-    if (type === "Blog") {
-      const myCloud = await cloudinary.v2.uploader.upload(image, {
-        folder: "blog",
-      });
-      const blog = {
-        type: "Blog",
-        blog: {
-          image: {
-            public_id: myCloud.public_id,
-            url: myCloud.secure_url,
-          },
-          title,
-          description,
-        },
-      };
-      await BlogModel.create(blog);
-    }
+  const myCloud = await cloudinary.v2.uploader.upload(image, {
+    folder: "blog",
+  });
+  const blog = {
+    type: "Blog",
+    blog: {
+      image: {
+        public_id: myCloud.public_id,
+        url: myCloud.secure_url,
+      },
+      title,
+      description,
+    },
+  };
+  await BlogModel.create(blog);
 
     res.status(201).json({
       success: true,
