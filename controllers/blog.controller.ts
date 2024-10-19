@@ -7,7 +7,7 @@ import BlogModel from "../models/blog.model";
 // Create blog
 export const createBlog = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { type, image, title, subTitle } = req.body;
+    const { type, image, title, description } = req.body;
 
     // Check if type already exists
     const isTypeExist = await BlogModel.findOne({ type });
@@ -27,7 +27,7 @@ export const createBlog = CatchAsyncError(
             url: myCloud.secure_url,
           },
           title,
-          subTitle,
+          description,
         },
       };
       await BlogModel.create(blog);
@@ -68,50 +68,6 @@ export const getSingleBlog = CatchAsyncError(
   }
 );
 
-// Update blog
-export const updateBlog = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const { type, image, title, subTitle } = req.body;
-
-    if (type === "Blog") {
-      const blogData: any = await BlogModel.findOne({ type: "Blog" });
-
-      if (!blogData) {
-        return next(new ErrorHandler("Blog not found for update", 404));
-      }
-
-      const data = image.startsWith("https")
-        ? blogData.blog.image
-        : await cloudinary.v2.uploader.upload(image, {
-            folder: "blog",
-          });
-
-      const blog = {
-        type: "Blog",
-        blog: {
-          image: {
-            public_id: image.startsWith("https")
-              ? blogData.blog.image.public_id
-              : data.public_id,
-            url: image.startsWith("https")
-              ? blogData.blog.image.url
-              : data.secure_url,
-          },
-          title,
-          subTitle,
-        },
-      };
-
-      await BlogModel.findByIdAndUpdate(blogData._id, blog, { new: true });
-    }
-
-    res.status(200).json({
-      success: true,
-      message: "Blog updated successfully",
-    });
-  }
-);
-
 // Delete blog
 export const deleteBlog = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
@@ -121,8 +77,8 @@ export const deleteBlog = CatchAsyncError(
       return next(new ErrorHandler("Blog not found", 404));
     }
 
-    await BlogModel.deleteOne({ _id: req.params.id }); // Use deleteOne instead of remove
-    await cloudinary.v2.uploader.destroy(blog.blog.image.public_id); // Remove image from Cloudinary
+    await BlogModel.deleteOne({ _id: req.params.id });
+    await cloudinary.v2.uploader.destroy(blog.blog.image.public_id);
 
     res.status(200).json({
       success: true,

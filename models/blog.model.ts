@@ -29,5 +29,4 @@ const blogSchema = new Schema<Blog>({
 });
 
 const BlogModel = model<Blog>("Blog", blogSchema);
-
 export default BlogModel;
