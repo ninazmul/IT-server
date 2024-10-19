@@ -1,38 +1,33 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import { Schema, Document, model } from "mongoose";
 
-interface IBlog extends Document {
-  title: string;
-  description: string;
-  headerImage: {
-    public_id: string;
-    url: string;
-  };
-  createdAt: Date;
+interface BlogImage extends Document {
+  public_id: string;
+  url: string;
 }
 
-const blogSchema = new Schema<IBlog>(
-  {
-    title: {
-      type: String,
-      required: true,
-    },
-    description: {
-      type: String,
-      required: true,
-    },
-    headerImage: {
-      public_id: {
-        type: String,
-        required: true,
-      },
-      url: {
-        type: String,
-        required: true,
-      },
-    },
-  },
-  { timestamps: true }
-);
+interface Blog extends Document {
+  type: string;
+  blog: {
+    image: BlogImage;
+    title: string;
+    description: string; // Ensure this matches your request and update
+  };
+}
 
-const BlogModel: Model<IBlog> = mongoose.model("Blog", blogSchema);
+const blogImageSchema = new Schema<BlogImage>({
+  public_id: { type: String, required: true },
+  url: { type: String, required: true },
+});
+
+const blogSchema = new Schema<Blog>({
+  type: { type: String, required: true },
+  blog: {
+    image: blogImageSchema,
+    title: { type: String, required: true },
+    description: { type: String, required: true }, // Ensure this matches your request and update
+  },
+});
+
+const BlogModel = model<Blog>("Blog", blogSchema);
+
 export default BlogModel;
