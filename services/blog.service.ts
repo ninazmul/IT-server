@@ -35,6 +35,8 @@ export const createBlog = async (data: BlogData) => {
 
     return blog;
   } catch (error: any) {
+    // Log the error for debugging
+    console.error("Error creating blog:", error);
     throw new ErrorHandler(error.message, 500);
   }
 };

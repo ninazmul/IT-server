@@ -6,16 +6,23 @@ import {
   getSingleBlog,
   deleteBlog,
 } from "../services/blog.service";
+import ErrorHandler from "../utils/ErrorHandler";
 
 // Route handler for creating a new blog
 export const uploadBlog = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
-    const { title, description, headerImage } = req.body;
+    const { title, description } = req.body;
+    const headerImage = req.file?.path; // Assuming you are using multer or a similar package to handle file uploads
+
+    if (!title || !description || !headerImage) {
+      return next(new ErrorHandler("All fields are required", 400));
+    }
 
     const blog = await createBlog({ title, description, headerImage });
     res.status(201).json({ success: true, blog });
   }
 );
+
 
 // Route handler for fetching all blogs
 export const getAllBlogsController = CatchAsyncError(
